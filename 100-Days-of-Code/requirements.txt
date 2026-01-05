@@ -1,7 +1,0 @@
-pandas
-pillow
-pyperclip
-requests
-twilio
-python-dotenv
-

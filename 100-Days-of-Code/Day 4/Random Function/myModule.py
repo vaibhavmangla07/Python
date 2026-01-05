@@ -1,1 +1,0 @@
-myFavNumber = 7
