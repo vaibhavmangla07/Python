@@ -1,0 +1,182 @@
+All Important Git Commands
+
+1. Setup
+
+git --version
+Check Git version.
+
+git config --global user.name "Your Name"
+Set your Git username.
+
+git config --global user.email "you@example.com"
+Set your Git email.
+
+git config --list
+Show all Git settings.
+
+
+2. Start Repository
+
+git init
+Create a new local Git repository.
+
+git clone <repo-url>
+Download an existing repository.
+
+
+3. Check Changes
+
+git status
+Show changed files and current branch.
+
+git diff
+Show unstaged file changes.
+
+git diff --staged
+Show staged changes.
+
+
+4. Stage and Commit
+
+git add <file>
+Stage one file.
+
+git add .
+Stage all files.
+
+git commit -m "message"
+Save staged changes.
+
+git commit -am "message"
+Add and commit tracked files quickly.
+
+
+5. History
+
+git log
+Show full commit history.
+
+git log --oneline
+Show short commit history.
+
+git show <commit-id>
+Show details of one commit.
+
+
+6. Branching
+
+git branch
+List branches.
+
+git branch <branch-name>
+Create new branch.
+
+git checkout <branch-name>
+Switch branch.
+
+git checkout -b <branch-name>
+Create and switch branch.
+
+git switch <branch-name>
+Modern branch switch.
+
+git switch -c <branch-name>
+Modern create + switch branch.
+
+
+7. Merge and Rebase
+
+git merge <branch-name>
+Merge another branch into current branch.
+
+git rebase <branch-name>
+Reapply your commits on top of another branch.
+
+
+8. Remote (GitHub/GitLab)
+
+git remote -v
+Show remote URLs.
+
+git remote add origin <repo-url>
+Add remote repository.
+
+git push -u origin main
+First push and set upstream.
+
+git push
+Push local commits.
+
+git pull
+Get latest remote changes and merge.
+
+git fetch
+Get latest remote changes without merge.
+
+
+9. Undo Commands
+
+git restore <file>
+Discard local unstaged changes in one file.
+
+git restore --staged <file>
+Unstage file.
+
+git reset --soft HEAD~1
+Undo last commit, keep changes staged.
+
+git reset --mixed HEAD~1
+Undo last commit, keep changes unstaged.
+
+git reset --hard HEAD~1
+Undo last commit and delete local changes (danger).
+
+git revert <commit-id>
+Create new commit that reverses old commit.
+
+
+10. Stash
+
+git stash
+Save temporary changes.
+
+git stash list
+Show stashed entries.
+
+git stash pop
+Apply latest stash and remove it.
+
+
+11. Tags
+
+git tag
+List tags.
+
+git tag <tag-name>
+Create a tag.
+
+git push origin <tag-name>
+Push tag to remote.
+
+
+12. Useful Extra Commands
+
+git rm <file>
+Delete file and track deletion.
+
+git mv <old> <new>
+Rename/move file with tracking.
+
+git clean -n
+Preview untracked files to remove.
+
+git clean -f
+Remove untracked files.
+
+
+Quick Daily Flow
+
+git status
+git add .
+git commit -m "your message"
+git push

@@ -1,0 +1,49 @@
+What is Git?
+
+Git is a free and open-source version control system.
+It tracks changes in files, especially source code.
+You can save your work in small checkpoints called commits.
+
+Why Git is used
+
+1. Version history
+   Git keeps full history of your project changes.
+
+2. Safety
+   If you make a mistake, you can go back to a previous working version.
+
+3. Team collaboration
+   Multiple people can work on the same project without overwriting each other.
+
+4. Branching
+   You can create branches to build new features safely.
+   Then merge them back after testing.
+
+5. Backup and sharing
+   You can connect Git with remote platforms like GitHub, GitLab, or Bitbucket.
+
+Important Git words (easy meaning)
+
+- Repository (repo): Your project folder managed by Git.
+- Commit: A saved version/checkpoint of your work.
+- Branch: A separate line of work.
+- Merge: Combine one branch into another.
+- Remote: Online copy of your repository.
+- Push: Send local commits to remote.
+- Pull: Get latest commits from remote.
+
+Simple example
+
+You write code today and commit it.
+Tomorrow you change code and it breaks.
+With Git, you can return to yesterday's good commit.
+
+Where Git helps most
+
+- Software projects
+- Group assignments
+- Data science projects
+- Learning projects where you make frequent changes
+
+In short:
+Git gives you history, safety, and teamwork support.

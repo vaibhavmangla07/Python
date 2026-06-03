@@ -13,3 +13,5 @@ memory_profiler
 streamlit
 scikit-learn
 imblearn
+nltk
+gensim

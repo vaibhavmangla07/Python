@@ -1,0 +1,1121 @@
+================================================================================
+                 COMPLETE DOCKER COMMANDS GUIDE (GENERAL)
+================================================================================
+
+WHAT IS DOCKER?
+===============
+Docker is a containerization platform that packages applications and their 
+dependencies into isolated containers that can run consistently across any 
+environment (Windows, Mac, Linux, Cloud servers).
+
+Think of it as a lightweight virtual machine that contains:
+  - Your application code
+  - All required libraries and dependencies
+  - Operating system environment
+  - Configuration files
+
+
+================================================================================
+DOCKER BASIC CONCEPTS
+================================================================================
+
+IMAGE:
+------
+- A blueprint/template for creating containers
+- Contains application code + all dependencies
+- Lightweight and portable
+- Read-only (never changes once created)
+- Think of it as a snapshot or template
+
+CONTAINER:
+----------
+- A running instance of an image
+- Isolated environment
+- Can start, stop, or remove
+- Multiple containers can run from same image
+- Each container is independent
+
+DOCKERFILE:
+-----------
+- A text file with instructions to build an image
+- Contains commands like FROM, RUN, COPY, CMD
+- Like a recipe that Docker follows
+
+REGISTRY/DOCKER HUB:
+--------------------
+- Online repository where images are stored
+- Like GitHub but for Docker images
+- Public (free) or private (paid)
+- Default registry: https://hub.docker.com
+
+
+================================================================================
+INSTALLING DOCKER
+================================================================================
+
+Mac:
+1. Download Docker Desktop from: https://www.docker.com/products/docker-desktop
+2. Install and run the application
+3. Verify: docker --version
+
+Windows:
+1. Download Docker Desktop from: https://www.docker.com/products/docker-desktop
+2. Install (requires WSL2)
+3. Verify: docker --version
+
+Linux:
+1. curl -fsSL https://get.docker.com -o get-docker.sh
+2. sudo sh get-docker.sh
+3. Verify: docker --version
+
+
+================================================================================
+DOCKER WORKFLOW
+================================================================================
+
+Step 1: Create Dockerfile (or pull existing image)
+Step 2: Build image from Dockerfile
+Step 3: Run container from image
+Step 4: Container runs your application
+Step 5: Manage container (stop, restart, remove)
+Step 6: Push image to registry (optional - to share)
+
+
+================================================================================
+DOCKERFILE BASICS
+================================================================================
+
+A Dockerfile contains instructions:
+
+FROM <image>
+  - Specifies base image to start from
+  - Example: FROM python:3.11, FROM ubuntu:22.04, FROM node:18
+
+RUN <command>
+  - Executes command during build
+  - Used to install packages, create directories, etc.
+  - Example: RUN pip install flask
+
+COPY <source> <destination>
+  - Copies files from host to container
+  - Example: COPY . /app
+
+WORKDIR <path>
+  - Sets working directory inside container
+  - Example: WORKDIR /app
+
+ENV <key>=<value>
+  - Set environment variables
+  - Example: ENV PORT=5000
+
+EXPOSE <port>
+  - Documents which port container listens on
+  - Example: EXPOSE 5000
+
+CMD <command>
+  - Default command to run when container starts
+  - Example: CMD ["python", "app.py"]
+
+ENTRYPOINT <command>
+  - Entry point for container
+  - Similar to CMD but harder to override
+
+
+EXAMPLE DOCKERFILE:
+-------------------
+FROM python:3.11
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+EXPOSE 5000
+CMD ["python", "main.py"]
+
+
+================================================================================
+IMAGE COMMANDS
+================================================================================
+
+1. BUILD AN IMAGE
+=================
+Command:
+  docker build -t <name>:<tag> <path>
+
+Example:
+  docker build -t my-app:1.0 .
+  docker build -t my-app:latest .
+  docker build -t username/my-app:v1.0 .
+
+Options:
+  -t              Tag the image with name:version
+  --no-cache      Don't use cached layers (rebuild everything)
+  -f Dockerfile   Specify custom Dockerfile path
+
+What it does:
+  - Reads Dockerfile
+  - Executes each instruction
+  - Creates image layer by layer
+  - Names it with tag
+
+
+2. LIST ALL IMAGES
+==================
+Command:
+  docker images
+
+Output shows:
+  REPOSITORY    TAG     IMAGE_ID      CREATED       SIZE
+  my-app        1.0     abc123def     5 minutes ago 500MB
+  python        3.11    xyz789abc     3 weeks ago   900MB
+
+Options:
+  docker images -a        Show all images
+  docker images -q        Show only image IDs
+  docker images --filter  Filter images
+
+
+3. REMOVE AN IMAGE
+==================
+Command:
+  docker rmi <image_name>:<tag>
+
+Example:
+  docker rmi my-app:1.0
+  docker rmi abc123def456 (using image ID)
+
+Note:
+  - Must stop all containers using this image first
+  - To force remove: docker rmi -f <image>
+
+
+4. TAG AN IMAGE
+===============
+Command:
+  docker tag <source>:<tag> <destination>:<tag>
+
+Example:
+  docker tag my-app:1.0 my-app:latest
+  docker tag my-app:1.0 username/my-app:1.0
+
+What it does:
+  - Creates new reference to same image
+  - Doesn't create copy or use more space
+  - Used for versioning
+
+
+5. SEARCH DOCKER HUB
+====================
+Command:
+  docker search <keyword>
+
+Example:
+  docker search python
+  docker search nginx
+  docker search ubuntu
+
+Output shows:
+  NAME          DESCRIPTION              STARS    OFFICIAL
+  python        Official Python runtime  12000    [OK]
+  python-slim   Lightweight Python       800
+
+
+6. PULL AN IMAGE
+================
+Command:
+  docker pull <image>:<tag>
+
+Example:
+  docker pull python:3.11
+  docker pull ubuntu:22.04
+  docker pull nginx:latest
+
+What it does:
+  - Downloads image from Docker Hub
+  - Saves locally on your computer
+  - Used before running container
+
+
+7. PUSH IMAGE TO REGISTRY
+=========================
+Command:
+  docker push <username>/<image>:<tag>
+
+Example:
+  docker push johnsmith/my-app:1.0
+
+Requirements:
+  - Must be logged in: docker login
+  - Image must be tagged with username
+  - Account on Docker Hub
+
+What it does:
+  - Uploads image to Docker Hub
+  - Makes it available for others
+
+
+8. INSPECT IMAGE DETAILS
+========================
+Command:
+  docker inspect <image>:<tag>
+
+Example:
+  docker inspect my-app:1.0
+  docker inspect python:3.11
+
+Output:
+  Shows detailed information about image:
+  - Creation date
+  - Architecture
+  - Environment variables
+  - Working directory
+  - Command
+  - Layers
+
+
+9. SHOW IMAGE HISTORY
+=====================
+Command:
+  docker history <image>:<tag>
+
+Example:
+  docker history my-app:1.0
+
+Shows each layer created during build process
+
+
+10. SAVE IMAGE AS TAR FILE
+==========================
+Command:
+  docker save <image>:<tag> -o <filename>.tar
+
+Example:
+  docker save my-app:1.0 -o my-app.tar
+
+What it does:
+  - Exports image to tar file
+  - Can transfer via email or copy to USB
+  - Good for air-gapped systems
+
+
+11. LOAD IMAGE FROM TAR FILE
+============================
+Command:
+  docker load -i <filename>.tar
+
+Example:
+  docker load -i my-app.tar
+
+Opposite of docker save
+
+
+================================================================================
+CONTAINER COMMANDS
+================================================================================
+
+1. RUN A CONTAINER (FOREGROUND)
+================================
+Command:
+  docker run <image>:<tag>
+
+Example:
+  docker run python:3.11
+  docker run --name myapp python:3.11
+  docker run -p 8000:5000 my-app:1.0
+  docker run -it ubuntu:22.04 bash
+
+Options:
+  --name <name>         Give container a name
+  -p <host>:<container> Map ports
+  -e VAR=value         Set environment variable
+  -v <host>:<container> Mount volume
+  -d                   Run in background (detached)
+  -it                  Interactive terminal
+  --rm                 Remove container when it exits
+
+What it does:
+  - Starts container in foreground
+  - Container displays output
+  - Container stops when process finishes
+
+
+2. RUN A CONTAINER (BACKGROUND)
+================================
+Command:
+  docker run -d <image>:<tag>
+
+Example:
+  docker run -d my-app:1.0
+  docker run -d -p 8000:5000 -e PORT=5000 my-app:1.0
+  docker run -d --name web-server nginx:latest
+
+Returns:
+  CONTAINER_ID (long hash string)
+
+What it does:
+  - Starts container in background
+  - Returns immediately to terminal
+  - Container keeps running
+
+
+3. LIST RUNNING CONTAINERS
+===========================
+Command:
+  docker ps
+
+Output:
+  CONTAINER ID   IMAGE         COMMAND         CREATED    STATUS      PORTS              NAMES
+  abc123def456   my-app:1.0    "python app"    2 min ago  Up 1 min    0.0.0.0:8000->5   myapp
+
+Shows only RUNNING containers
+
+
+4. LIST ALL CONTAINERS
+======================
+Command:
+  docker ps -a
+
+Shows:
+  - Running containers
+  - Stopped containers
+  - Exited containers
+  - Paused containers
+
+
+5. VIEW CONTAINER LOGS
+======================
+Command:
+  docker logs <container_id_or_name>
+
+Example:
+  docker logs abc123def456
+  docker logs myapp
+  docker logs myapp --tail 50 (show last 50 lines)
+  docker logs myapp --follow (live updates)
+
+
+6. LIVE CONTAINER LOGS
+======================
+Command:
+  docker logs -f <container_id_or_name>
+
+Example:
+  docker logs -f myapp
+  docker logs -f abc123def456
+
+What it does:
+  - Shows logs and keeps updating
+  - Like "tail -f" command
+  - Press Ctrl+C to stop
+
+
+7. STOP A RUNNING CONTAINER
+============================
+Command:
+  docker stop <container_id_or_name>
+
+Example:
+  docker stop abc123def456
+  docker stop myapp
+
+What it does:
+  - Gracefully stops container
+  - Sends SIGTERM signal
+  - Waits for process to finish (up to 10 seconds)
+  - Container becomes stopped (not removed)
+
+
+8. START A STOPPED CONTAINER
+=============================
+Command:
+  docker start <container_id_or_name>
+
+Example:
+  docker start abc123def456
+  docker start myapp
+
+What it does:
+  - Restarts a stopped container
+  - Container uses same ID and name
+
+
+9. RESTART A CONTAINER
+======================
+Command:
+  docker restart <container_id_or_name>
+
+Example:
+  docker restart myapp
+
+Equivalent to:
+  docker stop myapp && docker start myapp
+
+
+10. KILL A CONTAINER (FORCE STOP)
+=================================
+Command:
+  docker kill <container_id_or_name>
+
+Example:
+  docker kill abc123def456
+
+What it does:
+  - Forcefully stops container immediately
+  - Sends SIGKILL signal
+  - No graceful shutdown
+  - Use only when docker stop doesn't work
+
+
+11. REMOVE A CONTAINER
+======================
+Command:
+  docker rm <container_id_or_name>
+
+Example:
+  docker rm abc123def456
+  docker rm myapp
+
+Note:
+  - Container must be stopped first
+  - To force remove: docker rm -f <container>
+
+Removes:
+  - Container filesystem
+  - Container logs
+  - Everything about the container
+
+
+12. GET INSIDE CONTAINER
+=========================
+Command:
+  docker exec -it <container_id_or_name> bash
+
+Example:
+  docker exec -it myapp bash
+  docker exec -it abc123def456 bash
+
+What it does:
+  - Enters container shell
+  - Can run commands inside
+  - Type 'exit' to leave
+
+Once inside:
+  ls                 (list files)
+  pwd                (current directory)
+  env                (environment variables)
+  cat /etc/os-release (see OS)
+  python --version   (check python version)
+
+
+13. EXECUTE COMMAND IN CONTAINER
+=================================
+Command:
+  docker exec <container_id_or_name> <command>
+
+Example:
+  docker exec myapp ls -la
+  docker exec myapp python --version
+  docker exec myapp cat /app/config.txt
+
+What it does:
+  - Runs command inside container
+  - Doesn't enter shell
+
+
+14. COPY FILES TO/FROM CONTAINER
+=================================
+Copy FROM container TO host:
+  docker cp <container_id>:/path/file.txt ./file.txt
+
+Example:
+  docker cp myapp:/app/data.csv ./data.csv
+
+Copy FROM host TO container:
+  docker cp ./file.txt <container_id>:/app/file.txt
+
+Example:
+  docker cp ./config.ini myapp:/app/config.ini
+
+
+15. VIEW CONTAINER DETAILS
+==========================
+Command:
+  docker inspect <container_id_or_name>
+
+Example:
+  docker inspect myapp
+
+Shows:
+  - Container ID
+  - Image used
+  - Ports mapped
+  - Volumes mounted
+  - Environment variables
+  - IP address
+  - And much more...
+
+
+16. VIEW CONTAINER PERFORMANCE (CPU, MEMORY)
+=============================================
+Command:
+  docker stats <container_id_or_name>
+
+Example:
+  docker stats
+  docker stats myapp
+  docker stats --no-stream (snapshot only)
+
+Shows:
+  - CPU usage
+  - Memory usage
+  - Network I/O
+  - Block I/O
+  - PIDs
+
+
+17. PAUSE/UNPAUSE CONTAINER
+===========================
+Pause container:
+  docker pause <container_id_or_name>
+
+Resume container:
+  docker unpause <container_id_or_name>
+
+What it does:
+  - Pauses all processes in container
+  - Container still running but frozen
+  - Use for temporary stops
+
+
+18. VIEW CONTAINER PROCESSES
+=============================
+Command:
+  docker top <container_id_or_name>
+
+Example:
+  docker top myapp
+
+Shows:
+  - Processes running in container
+  - PID, CPU usage, command, etc.
+
+
+19. RENAME A CONTAINER
+======================
+Command:
+  docker rename <old_name> <new_name>
+
+Example:
+  docker rename myapp webapp
+
+
+20. CREATE CONTAINER WITHOUT RUNNING
+====================================
+Command:
+  docker create <image>:<tag>
+
+Example:
+  docker create my-app:1.0
+
+Creates container but doesn't start it.
+Start later with: docker start <container_id>
+
+
+================================================================================
+NETWORK COMMANDS
+================================================================================
+
+1. LIST NETWORKS
+================
+Command:
+  docker network ls
+
+Shows all networks
+
+
+2. CREATE NETWORK
+=================
+Command:
+  docker network create <network_name>
+
+Example:
+  docker network create my-network
+
+What it does:
+  - Creates bridge network
+  - Containers can communicate via name
+
+
+3. CONNECT CONTAINER TO NETWORK
+================================
+Command:
+  docker network connect <network> <container>
+
+Example:
+  docker network connect my-network web-app
+
+
+4. DISCONNECT CONTAINER FROM NETWORK
+=====================================
+Command:
+  docker network disconnect <network> <container>
+
+
+5. INSPECT NETWORK
+==================
+Command:
+  docker network inspect <network>
+
+Shows connected containers and details
+
+
+================================================================================
+VOLUME COMMANDS
+================================================================================
+
+VOLUMES:
+- Persistent storage outside container
+- Data survives when container removed
+- Shared between host and container
+- Shared between containers
+
+1. LIST VOLUMES
+===============
+Command:
+  docker volume ls
+
+Shows all volumes
+
+
+2. CREATE VOLUME
+================
+Command:
+  docker volume create <volume_name>
+
+Example:
+  docker volume create my-data
+
+
+3. REMOVE VOLUME
+================
+Command:
+  docker volume rm <volume_name>
+
+Example:
+  docker volume rm my-data
+
+
+4. USE VOLUME IN CONTAINER
+===========================
+Command:
+  docker run -v <volume_name>:<container_path> <image>
+
+Example:
+  docker run -v my-data:/app/data my-app:1.0
+
+-OR- Mount directory from host:
+
+  docker run -v /host/path:/container/path <image>
+
+Example:
+  docker run -v /home/user/data:/app/data my-app:1.0
+
+
+================================================================================
+SYSTEM COMMANDS
+================================================================================
+
+1. CHECK DOCKER VERSION
+=======================
+Command:
+  docker --version
+  docker version
+
+Shows Docker version
+
+
+2. DOCKER INFO
+==============
+Command:
+  docker info
+
+Shows:
+  - Total containers (running, paused, stopped)
+  - Total images
+  - Storage driver
+  - Operating system
+  - And more...
+
+
+3. LOGIN TO DOCKER HUB
+======================
+Command:
+  docker login
+
+Shows:
+  Login with your Docker Hub credentials
+  Username and password
+
+After login, can push images
+
+
+4. LOGOUT FROM DOCKER HUB
+=========================
+Command:
+  docker logout
+
+
+5. CLEAN UP SYSTEM
+==================
+Command:
+  docker system prune
+
+What it removes:
+  - Stopped containers
+  - Unused networks
+  - Dangling images
+  - Build cache
+
+Be careful - this is destructive!
+
+
+6. REMOVE UNUSED IMAGES
+=======================
+Command:
+  docker image prune
+
+Removes dangling images (not used by any container)
+
+
+7. REMOVE UNUSED CONTAINERS
+============================
+Command:
+  docker container prune
+
+Removes all stopped containers
+
+
+8. GET SYSTEM DISK USAGE
+========================
+Command:
+  docker system df
+
+Shows:
+  - Images: Total, active, size, reclaimable
+  - Containers: Total, active, size, reclaimable
+  - Local volumes: Total, active, size, reclaimable
+
+
+9. LIST EVENTS
+==============
+Command:
+  docker events
+
+Shows live stream of Docker events:
+  - Containers starting/stopping
+  - Images being pulled
+  - Volumes being created
+  - etc.
+
+
+================================================================================
+COMMON DOCKER WORKFLOWS
+================================================================================
+
+WORKFLOW 1: BUILD AND RUN
+=========================
+1. docker build -t my-app:1.0 .
+2. docker run -d -p 8000:5000 my-app:1.0
+3. docker ps (to see it running)
+4. curl http://localhost:8000
+5. docker stop <container_id>
+6. docker rm <container_id>
+
+
+WORKFLOW 2: USE PUBLIC IMAGE
+============================
+1. docker search nginx
+2. docker pull nginx:latest
+3. docker run -d -p 80:80 --name web nginx:latest
+4. docker logs web
+5. curl http://localhost:80
+6. docker stop web
+7. docker rm web
+
+
+WORKFLOW 3: DEVELOP WITH CONTAINER
+===================================
+1. docker run -it -v $(pwd):/app python:3.11 bash
+   (Now inside container with your files)
+2. apt update && apt install -y packages
+3. pip install -r requirements.txt
+4. python main.py
+5. exit (to leave container)
+
+
+WORKFLOW 4: SHARE IMAGE ON DOCKER HUB
+=====================================
+1. docker login
+2. docker build -t username/my-app:1.0 .
+3. docker push username/my-app:1.0
+4. Other users: docker pull username/my-app:1.0
+
+
+WORKFLOW 5: DEBUG CONTAINER
+============================
+1. docker ps -a (find container)
+2. docker logs <container> (check logs)
+3. docker logs -f <container> (live logs)
+4. docker exec -it <container> bash (enter container)
+5. (investigate inside Container)
+6. exit
+
+
+================================================================================
+PORT MAPPING EXPLAINED
+================================================================================
+
+-p <host_port>:<container_port>
+
+Examples:
+  -p 8000:5000
+    Your computer port 8000 --> Container port 5000
+    Access via: http://localhost:8000
+
+  -p 3306:3306
+    Your computer port 3306 --> Container port 3306
+    MySQL accessible at: localhost:3306
+
+  -p 5432:5432
+    Your computer port 5432 --> Container port 5432
+    PostgreSQL accessible at: localhost:5432
+
+Multiple ports:
+  -p 8000:5000 -p 3306:3306
+
+Random host port:
+  -p :5000 (Docker assigns random host port)
+
+
+================================================================================
+ENVIRONMENT VARIABLES
+================================================================================
+
+Setting environment variables:
+
+Command:
+  docker run -e VAR_NAME=value <image>
+
+Example:
+  docker run -e DATABASE_URL=postgres://localhost my-app:1.0
+  docker run -e DEBUG=true -e PORT=5000 my-app:1.0
+
+View container env:
+  docker exec <container> env
+
+
+================================================================================
+COMMON ERRORS & FIXES
+================================================================================
+
+ERROR: "docker: command not found"
+FIX: Docker not installed. Install Docker Desktop.
+
+ERROR: "Cannot connect to Docker daemon"
+FIX: Docker daemon not running. Start Docker Desktop.
+
+ERROR: "Error response from daemon: image not found"
+FIX: Image doesn't exist. 
+     Build it: docker build -t name:tag .
+     Or pull it: docker pull name:tag
+
+ERROR: "Port is already allocated"
+FIX: Another container using that port.
+     Stop it: docker stop <container>
+     Or use different port: -p 8001:5000
+
+ERROR: "Cannot remove container"
+FIX: Container is running.
+     Stop first: docker stop <container>
+     Or force: docker rm -f <container>
+
+ERROR: "Permission denied"
+FIX: Run with sudo or add user to docker group
+
+ERROR: "No space left on device"
+FIX: Clean up: docker system prune
+     Or remove images: docker rmi <image>
+
+
+================================================================================
+BEST PRACTICES
+================================================================================
+
+1. USE SPECIFIC TAGS
+   Bad:  docker build -t my-app .
+   Good: docker build -t my-app:1.0 .
+
+2. USE MEANINGFUL NAMES
+   Bad:  app1234, test
+   Good: web-server, database, api-service
+
+3. KEEP IMAGES SMALL
+   - Use minimal base images (alpine, slim)
+   - Remove unnecessary files
+   - Don't install dev tools in production
+
+4. USE .dockerignore
+   - Exclude files from COPY
+   - Like .gitignore for Docker
+
+5. LOGIN TO PUSH IMAGES
+   - docker login before docker push
+   - Keep credentials safe
+
+6. USE VOLUMES FOR DATA
+   - Don't store important data in container
+   - Use volumes for persistence
+
+7. CLEAN UP REGULARLY
+   - docker system prune
+   - Remove old images and containers
+
+8. USE HEALTH CHECKS
+   - Monitor if container is healthy
+   - Restart if unhealthy
+
+9. DON'T RUN AS ROOT
+   - Create user in Dockerfile
+   - Run with limited permissions
+
+10. USE DOCKER COMPOSE FOR MULTIPLE CONTAINERS
+   - Instead of multiple docker run commands
+   - Define services in YAML
+
+
+================================================================================
+DOCKERFILE BEST PRACTICES
+================================================================================
+
+1. Use specific base image version
+   FROM python:3.11-slim (specific)
+   NOT: FROM python:latest (changes)
+
+2. Combine RUN commands
+   RUN apt update && apt install -y package
+   Reduces layers
+
+3. Order commands efficiently
+   - Put frequently changing commands at end
+   - Put stable commands at beginning
+   - Better caching
+
+4. Use WORKDIR
+   Don't use cd in RUN command
+   Use WORKDIR instead
+
+5. Copy files efficiently
+   COPY requirements.txt .
+   RUN pip install -r requirements.txt
+   COPY . .
+   Layers cache better
+
+6. Use .dockerignore
+   Exclude unnecessary files
+   Makes image smaller
+
+7. Document EXPOSE
+   EXPOSE 8000
+   Documents which port container uses
+
+8. Use COPY not ADD
+   COPY is preferred for files
+   ADD is for URLs/tar (rarely needed)
+
+9. Run as non-root user
+   USER appuser (instead of running as root)
+
+10. Keep secrets out
+    Don't hardcode passwords
+    Use environment variables or secrets
+
+
+================================================================================
+QUICK REFERENCE TABLE
+================================================================================
+
+Image Commands:
+  docker build -t name:tag .      Build image
+  docker images                   List images
+  docker rmi name:tag            Remove image
+  docker push username/name      Push to registry
+  docker pull name:tag           Download image
+
+Container Commands:
+  docker run image:tag            Run (foreground)
+  docker run -d image:tag         Run (background)
+  docker ps                       List running
+  docker ps -a                    List all
+  docker stop container           Stop container
+  docker start container          Start container
+  docker rm container             Remove container
+  docker logs container           View logs
+  docker logs -f container        Live logs
+  docker exec -it container bash  Enter container
+
+Network Commands:
+  docker network ls               List networks
+  docker network create name      Create network
+
+Volume Commands:
+  docker volume ls                List volumes
+  docker volume create name       Create volume
+
+System Commands:
+  docker --version                Check version
+  docker info                     System info
+  docker system prune             Clean up
+  docker login                    Login to Docker Hub
+
+
+================================================================================
+RESOURCES
+================================================================================
+
+Official Docker Documentation:
+  https://docs.docker.com/
+
+Docker Hub (image registry):
+  https://hub.docker.com/
+
+YouTube Tutorials:
+  Search "Docker tutorial" on YouTube
+
+Interactive Learning:
+  https://www.docker.com/play-with-docker
+
+Official Images:
+  https://hub.docker.com/search?image_filter=official
+
+
+================================================================================
+SUMMARY
+================================================================================
+
+✓ Docker packages applications consistently
+✓ Images are blueprints, containers are instances
+✓ Build once, run anywhere
+✓ Easy to share and deploy
+✓ Commands are simple and logical
+✓ Great for development and production
+
+Docker Workflow:
+  CODE → Dockerfile → BUILD Image → RUN Container → APP RUNNING
+
+Now you're ready to use Docker effectively! 🐳
+
+
+================================================================================
+Created: March 28, 2026
+Document: Complete Docker Commands Guide
+Version: 1.0
+================================================================================

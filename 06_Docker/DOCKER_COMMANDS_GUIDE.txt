@@ -1,0 +1,492 @@
+================================================================================
+                    COMPLETE DOCKER COMMANDS GUIDE
+================================================================================
+
+WHAT IS DOCKER?
+===============
+Docker is a tool that packages your entire application (code + libraries + 
+dependencies) into a container. It works the same way on any computer, whether 
+Mac, Windows, or Linux.
+
+Think of it like a shipping container - everything is sealed inside and works 
+everywhere.
+
+
+================================================================================
+STEP-BY-STEP WORKFLOW - YOUR FLASK APP
+================================================================================
+
+REQUIREMENT FILES NEEDED:
+========================
+1. Dockerfile (tells Docker how to build your image)
+2. app.py (your Python application)
+3. requirements.txt (list of Python libraries needed)
+
+
+STEP 1: NAVIGATE TO DOCKER FOLDER
+==================================
+Command:
+  cd 06_Docker
+
+What it does:
+  Goes to the folder where Dockerfile is located
+
+Expected output:
+  (should change directory)
+
+
+STEP 2: BUILD THE DOCKER IMAGE
+===============================
+Command:
+  docker build -t my-flask-app:1.0 .
+
+What it does:
+  - Creates a Docker image from your Dockerfile
+  - Downloads Python 3.11
+  - Installs all libraries from requirements.txt
+  - Packages everything into an image
+
+Time taken:
+  1-2 minutes (first time, faster after that)
+
+Expected output:
+  Successfully built [some-hash]
+  Successfully tagged my-flask-app:1.0
+
+Breakdown:
+  docker build     = Build an image
+  -t my-flask-app:1.0 = Tag name (my-flask-app) and version (1.0)
+  .                = Use Dockerfile in current folder
+
+
+STEP 3: VERIFY IMAGE WAS CREATED
+=================================
+Command:
+  docker images
+
+What it does:
+  Lists all Docker images on your computer
+
+Expected output:
+  REPOSITORY        TAG    IMAGE ID      CREATED      SIZE
+  my-flask-app      1.0    abc123def456  2 min ago    500MB
+  python            3.11   xyz789abc123  1 week ago   900MB
+
+What to look for:
+  You should see "my-flask-app" with version "1.0" in the list
+
+
+STEP 4: RUN CONTAINER IN BACKGROUND
+====================================
+Command:
+  docker run -d -p 5003:5003 my-flask-app:1.0
+
+What it does:
+  - Starts a container from your image
+  - Runs in background (you get your terminal back)
+  - Maps port 5003
+
+Expected output:
+  8812f8c5ffbe1234567890abcdef12345678 (CONTAINER_ID)
+
+Breakdown:
+  docker run              = Start a container
+  -d                      = Detached mode (background)
+  -p 5003:5003           = Port mapping (your port 5003 -> container port 5003)
+  my-flask-app:1.0       = Image name and version
+
+SAVE THIS CONTAINER_ID - you'll need it for next steps!
+
+
+STEP 5: CHECK IF CONTAINER IS RUNNING
+======================================
+Command:
+  docker ps
+
+What it does:
+  Lists all running containers
+
+Expected output:
+  CONTAINER ID   IMAGE              COMMAND           CREATED      STATUS      PORTS
+  8812f8c5ffbe   my-flask-app:1.0   "python app.py"   2 min ago    Up 1 min    0.0.0.0:5003->5003/tcp
+
+What to look for:
+  Your container should appear with status "Up"
+
+
+STEP 6: VIEW CONTAINER LOGS
+============================
+Command:
+  docker logs 8812f8c5ffbe
+
+What it does:
+  Shows what the app is doing inside the container
+  (Replace 8812f8c5ffbe with your actual CONTAINER_ID)
+
+Expected output:
+  * Running on http://0.0.0.0:5003
+  * Restarting with reloader
+
+This means Flask is running!
+
+
+STEP 7: VIEW LIVE LOGS (OPTIONAL)
+==================================
+Command:
+  docker logs -f 8812f8c5ffbe
+
+What it does:
+  Shows logs and updates in real-time
+  (Replace 8812f8c5ffbe with your actual CONTAINER_ID)
+
+To stop:
+  Press Ctrl + C
+
+
+STEP 8: TEST YOUR APP
+=====================
+Command:
+  curl http://localhost:5003
+
+What it does:
+  Tests if your Flask app is working
+
+Expected output:
+  Hello World
+
+OR open browser:
+  http://localhost:5003
+
+
+STEP 9: STOP THE RUNNING CONTAINER
+===================================
+Command:
+  docker stop 8812f8c5ffbe
+
+What it does:
+  Gracefully stops the container
+  (Replace 8812f8c5ffbe with your actual CONTAINER_ID)
+
+Expected output:
+  8812f8c5ffbe (returns the container ID)
+
+
+STEP 10: VERIFY CONTAINER IS STOPPED
+====================================
+Command:
+  docker ps
+
+What it does:
+  Lists running containers
+
+Expected output:
+  CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+  (empty - no running containers)
+
+Your container should NOT appear in the list.
+
+
+STEP 11: REMOVE THE CONTAINER
+==============================
+Command:
+  docker rm 8812f8c5ffbe
+
+What it does:
+  Deletes the container permanently
+  (Replace 8812f8c5ffbe with your actual CONTAINER_ID)
+
+Expected output:
+  8812f8c5ffbe (returns the container ID)
+
+
+STEP 12: CLEAN UP (OPTIONAL)
+=============================
+Command:
+  docker system prune
+
+What it does:
+  Removes unused containers, networks, and images
+  Saves disk space
+
+When prompted:
+  Type 'y' and press Enter
+
+Expected output:
+  WARNING! This will remove:
+    - all stopped containers
+    - all networks not used by at least one container
+    - all dangling images
+    - unused build cache
+  
+  Are you sure you want to continue? [y/N] y
+  
+  Deleted build cache objects: ...
+
+
+================================================================================
+COMMON DOCKER COMMANDS REFERENCE
+================================================================================
+
+IMAGE MANAGEMENT
+================
+
+1. Build an image from Dockerfile
+   docker build -t name:version .
+   Example: docker build -t my-app:1.0 .
+
+2. List all images
+   docker images
+
+3. Remove an image
+   docker rmi name:version
+   Example: docker rmi my-app:1.0
+
+4. Tag an image with new name
+   docker tag name:version name:newtag
+   Example: docker tag my-app:1.0 my-app:latest
+
+5. Search Docker Hub
+   docker search keyword
+   Example: docker search python
+
+
+CONTAINER MANAGEMENT
+====================
+
+1. Run a container (foreground)
+   docker run -p port:port name:version
+   Example: docker run -p 5003:5003 my-app:1.0
+
+2. Run a container (background)
+   docker run -d -p port:port name:version
+   Example: docker run -d -p 5003:5003 my-app:1.0
+
+3. List running containers
+   docker ps
+
+4. List all containers (running + stopped)
+   docker ps -a
+
+5. View container logs
+   docker logs CONTAINER_ID
+
+6. View live logs
+   docker logs -f CONTAINER_ID
+
+7. Stop a running container
+   docker stop CONTAINER_ID
+
+8. Start a stopped container
+   docker start CONTAINER_ID
+
+9. Restart a container
+   docker restart CONTAINER_ID
+
+10. Remove a container
+    docker rm CONTAINER_ID
+
+11. Execute command inside container
+    docker exec -it CONTAINER_ID bash
+    (Now you're inside the container - type 'exit' to leave)
+
+12. Copy file from container to your computer
+    docker cp CONTAINER_ID:/path/to/file.txt ./file.txt
+
+13. View detailed container information
+    docker inspect CONTAINER_ID
+
+
+SYSTEM MANAGEMENT
+=================
+
+1. View system info
+   docker info
+
+2. Clean up all unused resources
+   docker system prune
+
+3. Check Docker version
+   docker --version
+
+4. List all active connections
+   docker network ls
+
+5. View container stats (CPU, memory, etc)
+   docker stats
+
+
+================================================================================
+QUICK REFERENCE - MOST USED COMMANDS
+================================================================================
+
+Build image:
+  docker build -t my-app:1.0 .
+
+Run container (background):
+  docker run -d -p 5003:5003 my-app:1.0
+
+Check running containers:
+  docker ps
+
+View logs:
+  docker logs CONTAINER_ID
+
+Stop container:
+  docker stop CONTAINER_ID
+
+Remove container:
+  docker rm CONTAINER_ID
+
+List all images:
+  docker images
+
+Remove image:
+  docker rmi my-app:1.0
+
+
+================================================================================
+YOUR DOCKERFILE EXPLAINED
+================================================================================
+
+Line 1: FROM python:3.11
+  - Start with Python 3.11 base image
+  - This downloads official Python 3.11 image
+
+Line 2: COPY . /app
+  - Copy all files from current folder (.)
+  - To /app folder inside container
+
+Line 3: WORKDIR /app
+  - Set working directory to /app
+  - Like running: cd /app
+
+Line 4: RUN pip install -r requirements.txt
+  - Install all Python libraries listed in requirements.txt
+  - Installs: Flask, Pandas, Numpy
+
+Line 5: CMD ["python","app.py"]
+  - When container starts, run this command
+  - Starts your Flask application
+
+
+================================================================================
+PORT MAPPING EXPLAINED
+================================================================================
+
+-p 5003:5003
+
+First 5003  = Your computer's port
+            You access: http://localhost:5003
+
+Second 5003 = Container's port
+            Inside container, app runs on this port
+
+So:
+  Your browser → localhost:5003 (your computer)
+              ↓ (port mapping)
+              → container:5003 (inside container)
+
+
+================================================================================
+CONTAINER ID vs IMAGE
+================================================================================
+
+IMAGE:
+  - Blueprint/template of your application
+  - Doesn't run by itself
+  - Example: my-flask-app:1.0
+
+CONTAINER:
+  - Running instance of an image
+  - Example: 8812f8c5ffbe
+  - Many containers can run from same image
+  - Each container is isolated
+
+
+================================================================================
+COMMON ERRORS & FIXES
+================================================================================
+
+ERROR: "failed to read dockerfile: open Dockerfile: no such file or directory"
+FIX: You're in wrong folder. Run: cd 06_Docker
+
+ERROR: "Unable to find image 'my-flask-app:1.0' locally"
+FIX: Image doesn't exist. Run: docker build -t my-flask-app:1.0 .
+
+ERROR: "dial unix /Users/.../docker.sock: connect: no such file or directory"
+FIX: Docker daemon not running. Open Docker Desktop app.
+
+ERROR: "port is already in use"
+FIX: Another app is using port 5003
+     Either stop that app or use different port: docker run -p 8000:5003 my-app:1.0
+
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. Push to Docker Hub (share your image)
+   docker login
+   docker push username/my-app:1.0
+
+2. Learn Docker Compose (run multiple containers)
+   Create docker-compose.yml file
+
+3. Learn Docker networking
+   Connect multiple containers
+
+4. Learn Docker volumes
+   Persist data outside container
+
+5. Learn health checks
+   Monitor if container is healthy
+
+
+================================================================================
+TIPS & BEST PRACTICES
+================================================================================
+
+1. Always tag your images with version numbers
+   Bad:  docker build -t my-app .
+   Good: docker build -t my-app:1.0 .
+
+2. Use meaningful names
+   Bad:  docker run -d image123
+   Good: docker run -d -p 5003:5003 my-flask-app:1.0
+
+3. Clean up regularly
+   docker system prune
+
+4. Check logs when something fails
+   docker logs CONTAINER_ID
+
+5. Use -d flag to run in background
+   Keeps your terminal free
+
+6. Map ports correctly
+   Remember: your_port:container_port
+
+7. Save your Dockerfile in version control (Git)
+   This way anyone can rebuild your image
+
+8. Document your Dockerfile
+   Add comments to explain each line
+
+
+================================================================================
+SUMMARY
+================================================================================
+
+✓ Docker packages your app in a container
+✓ Same container works on any computer
+✓ Build image once, run anywhere
+✓ Easy to deploy and share
+✓ Commands are simple: build → run → stop → remove
+
+You're now ready to use Docker! 🐳
+
+
+================================================================================
+Created Date: March 28, 2026
+For: Python Flask Application
+================================================================================
