@@ -15,3 +15,5 @@ scikit-learn
 imblearn
 nltk
 gensim
+torch
+torchinfo
